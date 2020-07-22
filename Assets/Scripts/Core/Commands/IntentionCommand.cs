@@ -18,8 +18,4 @@ namespace com.jlabarca.cpattern.Core.Commands
             _actor.SetIntention(_intention);
         }
     }
-
-    class IntentionCommandImpl : IntentionCommand
-    {
-    }
 }
