@@ -7,12 +7,13 @@ namespace com.jlabarca.cpattern.Core
         public State state;
         public float executionPeriod;
         private float _elapsed;
-        void Start()
+
+        private void Start()
         {
             state = new State();
         }
 
-        void Update()
+        private void FixedUpdate()
         {
             _elapsed += Time.deltaTime;
             if (_elapsed > executionPeriod)
