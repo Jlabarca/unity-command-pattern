@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using com.jlabarca.cpattern.Core.Commands;
+using UnityEngine;
 
 namespace com.jlabarca.cpattern.Core
 {
+    [Serializable]
     public struct State
     {
         public List<ICommand> commands;
@@ -10,7 +13,8 @@ namespace com.jlabarca.cpattern.Core
 
         public void ExecuteNextCommand()
         {
-            if (commands.Count >= index) return;
+            if (index >= commands.Count) return;
+            Debug.Log("Executing "+commands[index].GetType().Name);
             commands[index].Execute();
             index++;
         }
