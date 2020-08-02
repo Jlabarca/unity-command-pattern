@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using UnityEngine;
 
 namespace com.jlabarca.cpattern.Utils
@@ -9,23 +10,31 @@ namespace com.jlabarca.cpattern.Utils
         //private const string Seed = "SvgjvxbfeejKdfGCWVEvHjIvzgOkcLmXessADdvYfiZoLLAnbkEuSPBUrKaOqukEDxKWzllUsODXORCZNCeoJKtxfNBOjmICgJrDytMUzEEoyPwPYXDrEjbxlJaYZuxmwCkVZnZhcaX";
         private const string Seed = "urJOHCYpEgyiLyLLOhscLtFhVQdBCpmUmpAIMAWLTRWAFWLxozqFEkfdcsbfldCCEFUXQRYISyYjdIUZjxuOByzVIXEHvVgOjTWL";
         private static int _index;
-        public static float value => (float) GetValue();
+        public static float value => GetValue();
 
         public static int Range(int min, int max)
         {
-            var val = min + GetValue();
-            if (val > min && val < max) return (int) val;
+            var step = (max - min) / 10f;
+            var val = min + step * GetValue() * 10;
+            var intVal = Math.Round(val);
+
+            //Debug.Log($"{step} : {min} to {max} = {intVal} ");
+
+            if (val > min && val < max) return (int) intVal;
             return (min+max)/2;
         }
 
         public static float GetValue()
         {
             if (_index >= Seed.Length) _index = 0;
-            var val = (Seed[_index++]  - 1)/2f;
+            var val = 1 + Math.Pow(80 - (Seed[_index++] - 1), 2) / 100;
+
+            if (val > 0) val = 1 / val;
             //if (_index >= Seed.Length) _index = 0;
             //val /= Seed[_index++];
-            Debug.Log($"{val} ");
-            return val;
+            //Debug.Log($"{_index}: {val} ");
+
+            return (float) val;
         }
 
         public static float Range(float min, float max)
