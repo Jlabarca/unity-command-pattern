@@ -174,18 +174,6 @@ namespace com.jlabarca.cpattern
 					_moneyForFarmers -= 10;
 				}
 			}
-
-			_moneyForDrones++;
-			if (_moneyForDrones < 50) return;
-			for (var i = 0; i < 5; i++)
-			{
-				if (DroneManager.droneCount < DroneManager.instance.maxDroneCount)
-				{
-					DroneManager.SpawnDrone(storeX, storeY);
-				}
-			}
-
-			_moneyForDrones -= 50;
 		}
 
 		public static void DeletePlant(Plant plant)
@@ -366,11 +354,11 @@ namespace com.jlabarca.cpattern
 			}
 		}*/
 
-			var smooth = 1f - Mathf.Pow(.1f, Time.deltaTime);
+			var smooth = 1f - Mathf.Pow(.1f, Time.timeScale * Time.deltaTime);
 			for (var i = 0; i < _soldPlants.Count; i++)
 			{
 				var plant = _soldPlants[i];
-				_soldPlantTimers[i] += Time.deltaTime;
+				_soldPlantTimers[i] += Time.timeScale * Time.deltaTime;
 				var t = _soldPlantTimers[i];
 				var y = soldPlantYCurve.Evaluate(t);
 				var x = _soldPlants[i].x + .5f;
@@ -417,7 +405,7 @@ namespace com.jlabarca.cpattern
 					for (var k = 0; k < matrices[j].Count; k++)
 					{
 						var plant = plantList[j * InstancesPerBatch + k];
-						plant.growth = Mathf.Min(plant.growth + Time.deltaTime / 10f, 1f);
+						plant.growth = Mathf.Min(plant.growth + Time.timeScale* Time.deltaTime / 10, 1f);
 						_plantGrowthProperties[k] = plant.growth;
 					}
 
