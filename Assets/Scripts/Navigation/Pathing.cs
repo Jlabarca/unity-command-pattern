@@ -14,8 +14,8 @@ namespace com.jlabarca.cpattern.Navigation
 		private static List<int> nextTiles;
 		private static List<int> outputTiles;
 
-		private static int[] dirsX = new int[] { 1,-1,0,0 };
-		private static int[] dirsY = new int[] { 0,0,1,-1 };
+		private static int[] dirsX = { 1,-1,0,0 };
+		private static int[] dirsY = { 0,0,1,-1 };
 
 		private static int mapWidth;
 		private static int mapHeight;
@@ -58,24 +58,21 @@ namespace com.jlabarca.cpattern.Navigation
 			var rockPosHash = SearchForOne(x,y,range,IsNavigableDefault,IsRock,fullMapZone);
 			if (rockPosHash == -1) {
 				return null;
-			} else {
-				int rockX, rockY;
-				Unhash(rockPosHash,out rockX,out rockY);
-				if (outputPath != null) {
-					AssignLatestPath(outputPath,rockX,rockY);
-				}
-				return Map.tileRocks[rockX,rockY];
 			}
+
+			Unhash(rockPosHash, out var rockX,out var rockY);
+			if (outputPath != null) {
+				AssignLatestPath(outputPath,rockX,rockY);
+			}
+			return Map.tileRocks[rockX,rockY];
 		}
 
 		public static void WalkTo(int x, int y, int range, CheckMatchDelegate CheckMatch, Path outputPath) {
 			var storePosHash = SearchForOne(x,y,range,IsNavigableDefault,CheckMatch,fullMapZone);
-			if (storePosHash!=-1) {
-				int storeX, storeY;
-				Unhash(storePosHash,out storeX,out storeY);
-				if (outputPath!=null) {
-					AssignLatestPath(outputPath,storeX,storeY);
-				}
+			if (storePosHash == -1) return;
+			Unhash(storePosHash, out var storeX,out var storeY);
+			if (outputPath != null) {
+				AssignLatestPath(outputPath,storeX,storeY);
 			}
 		}
 
@@ -83,9 +80,9 @@ namespace com.jlabarca.cpattern.Navigation
 			outputTiles = Search(startX,startY,range,IsNavigable,CheckMatch,requiredZone,1);
 			if (outputTiles.Count==0) {
 				return -1;
-			} else {
-				return outputTiles[0];
 			}
+
+			return outputTiles[0];
 		}
 
 		public static List<int> Search(int startX,int startY,int range,IsNavigableDelegate IsNavigable,CheckMatchDelegate CheckMatch,RectInt requiredZone, int maxResultCount=0) {
@@ -120,9 +117,10 @@ namespace com.jlabarca.cpattern.Navigation
 
 				steps++;
 
-				for (var i=0;i<activeTiles.Count;i++) {
+				foreach (var t in activeTiles)
+				{
 					int x, y;
-					Unhash(activeTiles[i],out x,out y);
+					Unhash(t,out x,out y);
 
 					for (var j=0;j<dirsX.Length;j++) {
 						var x2 = x + dirsX[j];
@@ -132,23 +130,19 @@ namespace com.jlabarca.cpattern.Navigation
 							continue;
 						}
 
-						if (visitedTiles[x2,y2]==-1 || visitedTiles[x2,y2]>steps) {
+						if (visitedTiles[x2, y2] != -1 && visitedTiles[x2, y2] <= steps) continue;
+						var hash = Hash(x2,y2);
+						if (IsNavigable(x2,y2)) {
+							visitedTiles[x2,y2] = steps;
+							nextTiles.Add(hash);
+						}
 
-							var hash = Hash(x2,y2);
-							if (IsNavigable(x2,y2)) {
-								visitedTiles[x2,y2] = steps;
-								nextTiles.Add(hash);
-							}
-							if (x2 >= requiredZone.xMin && x2 <= requiredZone.xMax) {
-								if (y2 >= requiredZone.yMin && y2 <= requiredZone.yMax) {
-									if (CheckMatch(x2,y2)) {
-										outputTiles.Add(hash);
-										if (maxResultCount != 0 && outputTiles.Count >= maxResultCount) {
-											return outputTiles;
-										}
-									}
-								}
-							}
+						if (x2 < requiredZone.xMin || x2 > requiredZone.xMax) continue;
+						if (y2 < requiredZone.yMin || y2 > requiredZone.yMax) continue;
+						if (!CheckMatch(x2, y2)) continue;
+						outputTiles.Add(hash);
+						if (maxResultCount != 0 && outputTiles.Count >= maxResultCount) {
+							return outputTiles;
 						}
 					}
 				}
