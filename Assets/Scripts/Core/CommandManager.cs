@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using com.jlabarca.cpattern.Core.Commands;
 using UnityEngine;
 
@@ -6,17 +7,20 @@ namespace com.jlabarca.cpattern.Core
 {
     public class CommandManager : MonoBehaviour
     {
-        internal static CommandManager Instance;
+        internal static CommandManager instance;
         private int _index;
+        private float _elapsed;
 
         public State state;
         public float executionPeriod;
-        private float _elapsed;
+        public List<MonoBehaviour> tickables;
+
+        public int CommandsCount => state.commands.Count;
 
         void Awake(){
 
-            if (Instance == null){
-                Instance = this;
+            if (instance == null){
+                instance = this;
                 DontDestroyOnLoad(gameObject);
             } else {
                 Destroy(this);
@@ -33,17 +37,25 @@ namespace com.jlabarca.cpattern.Core
 
         private void FixedUpdate()
         {
-            _elapsed += Time.deltaTime;
+            if (executionPeriod > 0)
+            {
+                _elapsed += Time.timeScale * Time.deltaTime;
 
-            if (!(_elapsed > executionPeriod)) return;
+                if (!(_elapsed > executionPeriod)) return;
+            }
 
             state.ExecuteNextCommand();
             _elapsed = 0;
+
+            foreach (var tickable in tickables)
+            {
+                tickable.SendMessage("Tick");
+            }
         }
 
         public void AddCommand(ICommand command)
         {
-            Debug.Log("AddCommand "+command.GetType().Name);
+            //Debug.Log("AddCommand "+command.GetType().Name);
             state.commands.Add(command);
         }
     }
