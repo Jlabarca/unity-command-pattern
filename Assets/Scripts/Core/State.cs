@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using com.jlabarca.cpattern.Core.Commands;
-using UnityEngine;
 
 namespace com.jlabarca.cpattern.Core
 {
@@ -14,7 +13,7 @@ namespace com.jlabarca.cpattern.Core
         public void ExecuteNextCommand()
         {
             if (index >= commands.Count) return;
-            Debug.Log("Executing "+commands[index].GetType().Name);
+            //Debug.Log("Executing "+commands[index].GetType().Name);
             commands[index].Execute();
             index++;
         }
